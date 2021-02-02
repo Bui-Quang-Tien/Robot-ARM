@@ -57,25 +57,25 @@ void setup()
   pinMode(VALVE, OUTPUT);
 
   myservo.attach(SERVO);
-  myservo.write(servoPos);
-  // homeAll();
+  myservo.write(servoPos); // Cho servo về vị trí mặc định
+ 
   delay(1000);
-  stepper1.setMaxSpeed(100000.0);
-  stepper1.setAcceleration(100000.0);
+  stepper1.setMaxSpeed(100000.0); // tốc độ tối đa step 1
+  stepper1.setAcceleration(100000.0); // gia tốc step 1
 
-  stepper2.setMaxSpeed(500000.0);
-  stepper2.setAcceleration(100000.0);
+  stepper2.setMaxSpeed(500000.0); // tốc độ tối đa step 2
+  stepper2.setAcceleration(100000.0); // gia tốc step 2
 
-  stepper3.setMaxSpeed(500000.0);
-  stepper3.setAcceleration(100000.0);
+  stepper3.setMaxSpeed(500000.0); // tốc độ tối đa step 3
+  stepper3.setAcceleration(100000.0);// gia tốc step 3
   Serial.begin(115200);
-  lastTime = millis();
+  lastTime = millis(); //biến thời gian sử dụng cho việc phản hồi
 }
-void loop()
+void loop() //Hàm chính
 {
   if (Serial.available() > 0) {
     CMD = Serial.readString();
-    if (CMD.indexOf('!') > 0) {
+    if (CMD.indexOf('!') > 0) { // xử lý lệnh điều khiển
       Serial.println("#OK!");
       if (CMD.indexOf("HOME") >= 0) homeAll();
       else if (CMD.indexOf("STOP") >= 0) stopMove();
@@ -143,15 +143,15 @@ void loop()
       }
       else {
 
-        int X_index = CMD.indexOf('X');
+        int X_index = CMD.indexOf('X'); // di chuyển X
         if (X_index >= 0) {
           String X_sub = CMD.substring(X_index + 1, CMD.indexOf('Y'));
           Xvalue = X_sub.toInt();
 
         }
-        if (CMD.indexOf('x') >= 0) Xvalue += 50;
-        if (CMD.indexOf('d') >= 0) Xvalue -= 50;
-        int Y_index = CMD.indexOf('Y');
+        if (CMD.indexOf('x') >= 0) Xvalue += 50;// nhấn #X! thì di chuyển một đoạn nhỏ 50
+        if (CMD.indexOf('d') >= 0) Xvalue -= 50;// nhấn #x! thì di chuyển một đoạn nhỏ -50
+        int Y_index = CMD.indexOf('Y'); // di chuyển Y
         if (Y_index >= 0) {
           String Y_sub = CMD.substring(Y_index + 1, CMD.indexOf('Z'));
           Yvalue = Y_sub.toInt();
@@ -160,7 +160,7 @@ void loop()
         if (CMD.indexOf('y') >= 0) Yvalue += 50;
         if (CMD.indexOf('h') >= 0) Yvalue -= 50;
 
-        int Z_index = CMD.indexOf('Z');
+        int Z_index = CMD.indexOf('Z'); // di chuyển Z
         if (Z_index >= 0) {
           String Z_sub = CMD.substring(Z_index + 1, CMD.indexOf('S'));
           Zvalue = Z_sub.toInt();
@@ -201,11 +201,11 @@ void loop()
     }
   }
 
-  if (millis() > (lastTime + 1000)) {
+  if (millis() > (lastTime + 1000)) { // thời gian phản hồi là 1000 mili giây, muốn phản hồi nhanh chậm thì chỉnh ở đây.
     String s = "#X" + (String)stepper1.currentPosition() + "Y" + (String)stepper2.currentPosition() + "Z" + (String)stepper3.currentPosition() + "S" + servoPos + "!";
     String s1 = "#B" + (String)Pump + "V" + (String)Valve + "!";
-    Serial.println(s);
-    Serial.println(s1);
+    Serial.println(s);// s chứa X Y Z S
+    Serial.println(s1);// s1 chứa B V ( bơm và van)
     lastTime = millis();
   }
   STATION1();
@@ -225,15 +225,15 @@ void loop()
   stepper3.run();
 }
 
-void homeX() {
+void homeX() {// hàm về góc tạo độ X
   digitalWrite(DIRX, 0);
   while (digitalRead(XENDSTOP) == 1) {
     tone(STEPX, 500);
   }
   noTone(STEPX);
-  Xvalue = 0;
+  Xvalue = 700;
 }
-void homeY() {
+void homeY() {// hàm về góc tạo độ X
   digitalWrite(DIRY, 0);
   while (digitalRead(YENDSTOP) == 1) {
     tone(STEPY, 500);
@@ -242,7 +242,7 @@ void homeY() {
   Yvalue = 0;
 
 }
-void homeZ() {
+void homeZ() {// hàm về góc tạo độ X
   digitalWrite(DIRZ, 0);
   while (digitalRead(ZENDSTOP) == 1) {
     tone(STEPZ, 500);
@@ -250,7 +250,7 @@ void homeZ() {
   noTone(STEPZ);
   Zvalue = 0;
 }
-void homeAll() {
+void homeAll() {// hàm về góc tạo độ XYZ
   servoPos = 90;
   myservo.write(servoPos);
   homeY();
@@ -263,7 +263,7 @@ void homeAll() {
   Yvalue = 0;
   Zvalue = 0;
 }
-void pause() {
+void pause() { //Hàm tạm dừng
   STAPause = STA;
   station_1Pause = station_1;
   station_2Pause = station_2;
@@ -285,7 +285,7 @@ void pause() {
   Zvalue = stepper3.currentPosition();
 
 }
-void continueMove() {
+void continueMove() {//hàm tiếp tục chạy
   Xvalue = XvaluePause;
   Yvalue = YvaluePause;
   Zvalue = ZvaluePause;
@@ -297,7 +297,7 @@ void continueMove() {
   station_5 = station_5Pause;
   station_6 = station_6Pause;
 }
-void stopMove() {
+void stopMove() {// hàm dừng hẳn mọi di chuyển
   Xvalue = stepper1.currentPosition();
   Yvalue = stepper2.currentPosition();
   Zvalue = stepper3.currentPosition();
@@ -311,7 +311,7 @@ void stopMove() {
   station_5 = 0;
   station_6 = 0;
 }
-int wait(unsigned long milliSecond) {
+int wait(unsigned long milliSecond) { //hàm chờ giữa các bước
   switch (staTimer) {
     case 0:
       waitTime = millis();
