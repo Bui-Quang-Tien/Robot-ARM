@@ -336,3 +336,9 @@ private:
 };
 
 #endif 
+void STATION1();
+void STATION2();
+void STATION3();
+void STATION4();
+void STATION5();
+void STATION6();
